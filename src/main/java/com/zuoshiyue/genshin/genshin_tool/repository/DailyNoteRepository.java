@@ -1,7 +1,7 @@
 package com.zuoshiyue.genshin.genshin_tool.repository;
 
 import com.zuoshiyue.genshin.genshin_tool.util.JsonUtil;
-import com.zuoshiyue.genshin.genshin_tool.vo.DaliyNoteResponse;
+import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
-import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.*;
+import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.*;
 import static com.zuoshiyue.genshin.genshin_tool.util.DSUtil.getDS;
 
 /**
@@ -26,7 +26,7 @@ public class DailyNoteRepository {
 
     private static final String DAILY_NOTE_URL = "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?server=%s&role_id=%s";
 
-    public DaliyNoteResponse getDailyNote() {
+    public DailyNoteResponse getDailyNote() {
 
         try {
             String fullUrl = String.format(DAILY_NOTE_URL, SERVER, ROLE_ID);
@@ -36,7 +36,7 @@ public class DailyNoteRepository {
                return null;
             }
             Object data = stringObjectMap.get("data");
-            return JsonUtil.of(JsonUtil.toJson(data), DaliyNoteResponse.class);
+            return JsonUtil.of(JsonUtil.toJson(data), DailyNoteResponse.class);
         } catch (Exception e) {
             log.info("getDailyNote error", e);
             return null;

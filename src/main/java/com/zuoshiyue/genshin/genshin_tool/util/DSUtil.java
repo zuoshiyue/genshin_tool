@@ -2,10 +2,8 @@ package com.zuoshiyue.genshin.genshin_tool.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.util.Random;
-
-import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.ROLE_ID;
-import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.SERVER;
+import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.ROLE_ID;
+import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.SERVER;
 
 /**
  * @author zuoshiyue

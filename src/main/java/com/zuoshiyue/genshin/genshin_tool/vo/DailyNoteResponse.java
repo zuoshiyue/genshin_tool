@@ -13,7 +13,7 @@ import java.util.List;
  **/
 @NoArgsConstructor
 @Data
-public class DaliyNoteResponse {
+public class DailyNoteResponse {
 
     /**
      * 当前树脂

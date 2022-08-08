@@ -1,4 +1,4 @@
-package com.zuoshiyue.genshin.genshin_tool.config;
+package com.zuoshiyue.genshin.genshin_tool.common.account;
 
 /**
  * @author zuoshiyue
