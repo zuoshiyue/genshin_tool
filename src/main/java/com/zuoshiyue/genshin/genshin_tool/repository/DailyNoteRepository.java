@@ -16,7 +16,7 @@ import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.*;
 import static com.zuoshiyue.genshin.genshin_tool.util.DSUtil.getDS;
 
 /**
- * @author lupengfei
+ * @author zuoshiyue
  * @date 2022/8/3 17:21
  * @desc 返回原神便笺信息
  **/

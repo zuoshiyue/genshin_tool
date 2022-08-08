@@ -1,7 +1,7 @@
 package com.zuoshiyue.genshin.genshin_tool.config;
 
 /**
- * @author lupengfei
+ * @author zuoshiyue
  * @date 2022/8/8 14:20
  * @desc
  **/
