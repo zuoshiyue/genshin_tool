@@ -1,11 +1,11 @@
 package com.zuoshiyue.genshin.genshin_tool.util;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.digest.DigestUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
+
+import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.ROLE_ID;
+import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.SERVER;
 
 /**
  * @author zuoshiyue
@@ -16,22 +16,23 @@ public class DSUtil {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    public static String randomStrGen(int length) {
-        StringBuilder result = new StringBuilder();
-        int charactersLength = CHARACTERS.length();
-        for (int i = 0; i < length; i++) {
-            result.append(CHARACTERS.charAt((int) Math.floor(ThreadLocalRandom.current().nextDouble() * charactersLength)));
-        }
-        return result.toString();
+
+
+    private static final String SIGN_FORMAT = "salt=xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs&t=%s&r=%s&b=&q=role_id=%s&server=" + SERVER;
+
+
+
+    public static String getDS() {
+        String timestamp = "" + System.currentTimeMillis() / 1000;
+        String randomStr = randomIntFromInt(100000, 200000);
+        String sign = DigestUtils.md5Hex(String.format(SIGN_FORMAT, timestamp, randomStr, ROLE_ID));
+        return timestamp + "," + randomStr + "," + sign;
     }
 
-    public static String md5(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        //得到一个信息摘要器
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
-        //获取Base64编码算法工具
-        BASE64Encoder base64 = new BASE64Encoder();
-        //进行编码加密
-        String encode = base64.encode(md5.digest(password.getBytes("UTF-8")));
-        return encode;
+
+    private static String randomIntFromInt(int min, int max) {
+        int v = (int) (Math.random() * (max - min + 1) + min);
+        return String.valueOf(v);
     }
+
 }

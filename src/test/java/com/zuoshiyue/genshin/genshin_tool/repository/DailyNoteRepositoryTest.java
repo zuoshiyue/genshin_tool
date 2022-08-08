@@ -1,5 +1,6 @@
 package com.zuoshiyue.genshin.genshin_tool.repository;
 
+import com.zuoshiyue.genshin.genshin_tool.vo.DaliyNoteResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,7 +15,7 @@ class DailyNoteRepositoryTest {
 
     @Test
     void getDailyNote() {
-        String dailyNote = dailyNoteRepository.getDailyNote();
+        DaliyNoteResponse dailyNote = dailyNoteRepository.getDailyNote();
         System.out.println(dailyNote);
     }
 }

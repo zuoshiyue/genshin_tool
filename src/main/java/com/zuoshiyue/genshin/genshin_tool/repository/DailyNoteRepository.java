@@ -1,16 +1,19 @@
 package com.zuoshiyue.genshin.genshin_tool.repository;
 
-import com.zuoshiyue.genshin.genshin_tool.util.DSUtil;
-import com.zuoshiyue.genshin.genshin_tool.util.HttpClientUtils;
+import com.zuoshiyue.genshin.genshin_tool.util.JsonUtil;
+import com.zuoshiyue.genshin.genshin_tool.vo.DaliyNoteResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Map;
+
+import static com.zuoshiyue.genshin.genshin_tool.config.AccountConfig.*;
+import static com.zuoshiyue.genshin.genshin_tool.util.DSUtil.getDS;
 
 /**
  * @author lupengfei
@@ -21,45 +24,66 @@ import java.util.Map;
 @Component
 public class DailyNoteRepository {
 
-    /**
-     * 国服
-     */
-    private static final String SERVER = "cn_gf01";
+    private static final String DAILY_NOTE_URL = "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?server=%s&role_id=%s";
 
-    /**
-     * 账户ID
-     */
-    private static final String ROLE_ID = "137236712";
-
-    private static final String DAILY_NOTE_URL = "https://bbs-api-os.hoyolab.com/game_record/genshin/api/dailyNote";
-    private static final String COOKIE = "mi18nLang=zh-cn; _MHYUUID=7e4813ba-a86d-41fb-9233-35c03ca98bf3; UM_distinctid=17f9267483dee-0decd15ea10b99-1b5d2620-13c680-17f9267483ef1; _ga_Q58GRM5TVC=GS1.1.1652424682.1.1.1652425283.0; _ga=GA1.2.1742244236.1647428709; _ga_45KPGN9XLN=GS1.1.1652750533.1.1.1652750545.0; ltoken=WTawnw52BlC4V4NoVSwYhQVWR4fZtxAxeZklldGh; ltuid=229525194; _gid=GA1.2.46291600.1659508684; acw_tc=0a362b5d16595323347564825e0b9db408ba7f3ef8bd2b5d4b7e40b1f787e1; _gat=1";
-
-    public String getDailyNote() {
-        String randomStr = DSUtil.randomStrGen(6);
-        long timestamp = System.currentTimeMillis() / 1000;
-        String signDecoder = "salt=6s25p5ox5y14umn1p61aqyyvbvvl3lrt&t=" + timestamp + "&r=" + randomStr;
+    public DaliyNoteResponse getDailyNote() {
 
         try {
-            String sign = DSUtil.md5(signDecoder);
-            Map<String, String> paramMap = new HashMap<>();
-            paramMap.put("server",SERVER);
-            paramMap.put("role_id",ROLE_ID);
-            List<BasicHeader> headerList = new ArrayList<>();
-            headerList.add(new BasicHeader("Content-Type", "application/x-www-form-urlencoded"));
-            headerList.add(new BasicHeader("DS", timestamp + "," + randomStr + "," + sign));
-            headerList.add(new BasicHeader("x-rpc-client_type", "5"));
-            headerList.add(new BasicHeader("x-rpc-app_version", "2.9.1"));
-            headerList.add(new BasicHeader("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBSOversea/2.9.1"));
-            headerList.add(new BasicHeader("Origin", "https://act.hoyolab.com"));
-            headerList.add(new BasicHeader("Referer", "https://act.hoyolab.com/"));
-            headerList.add(new BasicHeader("Cookie", COOKIE));
-            Header[] headers = headerList.toArray(new Header[0]);
-
-            String s = HttpClientUtils.doGet(DAILY_NOTE_URL, paramMap, headers);
-            return s;
+            String fullUrl = String.format(DAILY_NOTE_URL, SERVER, ROLE_ID);
+            String httpResponse = getHttpResponse(fullUrl, COOKIE);
+            Map<String, Object> stringObjectMap = JsonUtil.ofMap(httpResponse, String.class, Object.class);
+            if (stringObjectMap.get("retcode") == null || (int)stringObjectMap.get("retcode") != 0){
+               return null;
+            }
+            Object data = stringObjectMap.get("data");
+            return JsonUtil.of(JsonUtil.toJson(data), DaliyNoteResponse.class);
         } catch (Exception e) {
             log.info("getDailyNote error", e);
             return null;
         }
+    }
+
+
+    public static String getHttpResponse(String allConfigUrl, String cookies) {
+        BufferedReader in = null;
+        StringBuffer result;
+        try {
+            URI uri = new URI(allConfigUrl);
+            URL url = uri.toURL();
+            URLConnection connection = url.openConnection();
+            connection.setRequestProperty("DS", getDS());
+            /**
+             # 1:  ios
+             # 2:  android
+             # 4:  pc web
+             # 5:  mobile web
+             */
+            connection.setRequestProperty("x-rpc-client_type", "5");
+            connection.setRequestProperty("x-rpc-app_version", "2.33.1");
+            connection.setRequestProperty("x-rpc-channel", "baidu");
+            connection.setRequestProperty("Referer", "https://webstatic.mihoyo.com/");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/103.0.5060.134");
+
+            connection.setRequestProperty("Cookie", cookies);
+            connection.connect();
+            result = new StringBuffer();
+            in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+            return result.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return null;
     }
 }
