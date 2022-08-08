@@ -87,6 +87,9 @@ public class DailyNoteResponse {
     private String homeCoinRecoveryTime;
     @JsonProperty("calendar_url")
     private String calendarUrl;
+    /**
+     * 参量质变仪
+     */
     @JsonProperty("transformer")
     private TransformerDTO transformer;
 
