@@ -37,6 +37,10 @@ public class DailyNoteService {
         getTaskInfo(dailyNote, now);
         //树脂
         getResinInfo(dailyNote, now);
+        //宝钱
+        //派遣
+        //半价周本
+        //参量质变
 
     }
 
