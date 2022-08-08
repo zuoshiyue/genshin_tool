@@ -1,6 +1,7 @@
 package com.zuoshiyue.genshin.genshin_tool.service;
 
 import com.zuoshiyue.genshin.genshin_tool.repository.DailyNoteRepository;
+import com.zuoshiyue.genshin.genshin_tool.util.DateUtil;
 import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
@@ -30,11 +31,13 @@ public class DailyNoteService {
         DailyNoteResponse dailyNote = dailyNoteRepository.getDailyNote();
         if (dailyNote == null) {
             log.error("未获取到便笺信息");
+            return;
         }
         //每日委托
         getTaskInfo(dailyNote, now);
         //树脂
         getResinInfo(dailyNote, now);
+
     }
 
     /**
@@ -50,7 +53,7 @@ public class DailyNoteService {
         long recoveryTime = now + NumberUtils.toLong(resinRecoveryTime) * 1000;
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         String format = sdf.format(new Date(recoveryTime));
-        System.out.println("树脂：" + currentResin + "/" + maxResin + " 预计完成时间：" + format);
+        System.out.println("树脂：" + currentResin + "/" + maxResin + " 预计完成时间：" + DateUtil.getClock(NumberUtils.toLong(resinRecoveryTime), now));
     }
 
     /**
