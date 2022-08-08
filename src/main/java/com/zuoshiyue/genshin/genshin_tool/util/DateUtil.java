@@ -1,11 +1,14 @@
 package com.zuoshiyue.genshin.genshin_tool.util;
 
+import java.sql.Array;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.TextStyle;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author zuoshiyue
@@ -16,17 +19,20 @@ public class DateUtil {
 
     private static final ZoneOffset zoneOffset = ZoneOffset.ofHours(8);
 
-    /**
-     * 秒转为时分秒  7200 -》 02:00:00
-     *
-     * @param time
-     * @return
-     */
-    public static String transFom(final int time) {
-        int hh = time / 3600;
-        int mm = (time % 3600) / 60;
-        int ss = (time % 3600) % 60;
-        return (hh < 10 ? ("0" + hh) : hh) + ":" + (mm < 10 ? ("0" + mm) : mm) + ":" + (ss < 10 ? ("0" + ss) : ss);
+    public static Map<String, Integer> formatExpRemainTime(long timeRemain){
+        int processTimeTmp = (int) (timeRemain/60);
+        int hour = processTimeTmp / 60;
+        int minute = processTimeTmp % 60;
+        int second = (int) (timeRemain % 60);
+        Map<String, Integer> map = new HashMap<>();
+        map.put("hour", hour);
+        map.put("minute", minute);
+        map.put("second", second);
+        return map;
+    }
+
+    public static void main(String[] args) {
+        DateUtil.formatExpRemainTime(50647);
     }
 
     public static String getClock(long time, long now) {

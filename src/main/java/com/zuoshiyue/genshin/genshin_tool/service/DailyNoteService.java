@@ -2,17 +2,23 @@ package com.zuoshiyue.genshin.genshin_tool.service;
 
 import com.zuoshiyue.genshin.genshin_tool.repository.DailyNoteRepository;
 import com.zuoshiyue.genshin.genshin_tool.util.DateUtil;
+import com.zuoshiyue.genshin.genshin_tool.util.Safes;
 import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author zuoshiyue
@@ -44,10 +50,64 @@ public class DailyNoteService {
         //宝钱
         getHomeCoin(dailyNote, now);
         //派遣
+        getExpeditionInfo(dailyNote, now);
         //半价周本
         getWeeklyExplorationInfo(dailyNote, now);
         //参量质变
         getTransformerInfo(dailyNote, now);
+
+    }
+
+    /**
+     * 派遣任务
+     */
+    private void getExpeditionInfo(DailyNoteResponse dailyNote, long now) {
+        //当前探索派遣人数
+        Integer currentExpeditionNum = Optional.ofNullable(dailyNote.getCurrentExpeditionNum()).orElse(-1);
+        //探索派遣限制
+        Integer maxExpeditionNum = Optional.ofNullable(dailyNote.getMaxExpeditionNum()).orElse(0);
+        //每日委托额外奖励领取情况
+        Boolean isExtraTaskRewardReceived = Optional.ofNullable(dailyNote.getIsExtraTaskRewardReceived()).orElse(false);
+        //派遣人员信息
+        List<DailyNoteResponse.ExpeditionsDTO> expeditions = dailyNote.getExpeditions();
+        String result = "";
+        if (maxExpeditionNum < 0) {
+            result += "未派遣，请添加派遣角色";
+        } else {
+            result += String.format("共%s人", Optional.of(currentExpeditionNum).orElse(0));
+        }
+
+        AtomicLong minCoverTime = new AtomicLong(Safes.of(expeditions).stream().filter(Objects::nonNull).findFirst()
+                .map(DailyNoteResponse.ExpeditionsDTO::getRemainedTime).map(NumberUtils::toLong).orElse(0L));
+        AtomicBoolean hasFinished = new AtomicBoolean(false);
+        Safes.of(expeditions).stream().filter(Objects::nonNull)
+                .forEach(expedition -> {
+                    String status = expedition.getStatus();
+                    long remainedTime = NumberUtils.toLong(expedition.getRemainedTime(), 0);
+                    if (remainedTime < minCoverTime.get()) {
+                        minCoverTime.set(remainedTime);
+                    }
+                    if (StringUtils.equalsIgnoreCase(status, "Finished")) {
+                        hasFinished.set(true);
+                    }
+                    String clock = DateUtil.getClock(remainedTime, now);
+                    String avatarSideIcon = expedition.getAvatarSideIcon();
+                    String[] split = avatarSideIcon.split("/");
+                    String sp = split[split.length - 1];
+                    String[] split1 = sp.split("\\.");
+                    String s = split1[0];
+                    String[] s1 = s.split("_");
+                    String name = s1[s1.length - 1];
+                    System.out.println("Name:" + name + "\t时间：" + clock);
+                });
+        if (hasFinished.get()) {
+            result += ", 派遣任务奖励可领取";
+        } else if (minCoverTime.get() > 0) {
+            String clock = DateUtil.getClock(minCoverTime.get(), now);
+            result += ", " + clock;
+        }
+
+        System.out.println("派遣探索：" + result);
 
     }
 
