@@ -1,5 +1,6 @@
 package com.zuoshiyue.genshin.genshin_tool.service;
 
+import com.zuoshiyue.genshin.genshin_tool.enums.RoleEnum;
 import com.zuoshiyue.genshin.genshin_tool.repository.DailyNoteRepository;
 import com.zuoshiyue.genshin.genshin_tool.util.DateUtil;
 import com.zuoshiyue.genshin.genshin_tool.util.Safes;
@@ -98,7 +99,8 @@ public class DailyNoteService {
                     String s = split1[0];
                     String[] s1 = s.split("_");
                     String name = s1[s1.length - 1];
-                    System.out.println("Name:" + name + "\t时间：" + clock);
+                    RoleEnum byEnName = RoleEnum.getByEnName(name);
+                    System.out.println("角色:" + byEnName.getCnName() + "\t时间：" + clock);
                 });
         if (hasFinished.get()) {
             result += ", 派遣任务奖励可领取";
