@@ -4,11 +4,9 @@ import com.zuoshiyue.genshin.genshin_tool.service.AccountCacheService;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
@@ -17,7 +15,7 @@ import javax.validation.Valid;
 import java.util.Objects;
 
 /**
- * @author lupengfei
+ * @author zuoshiyue
  * @date 2022/8/10 16:24
  * @desc
  **/
@@ -54,13 +52,6 @@ public class AccountController extends BaseController {
             return "views/error";
         }
         request.setAttribute("user", account);
-        return "views/index";
-    }
-
-    @GetMapping("/test")
-    public String test(HttpServletRequest request) {
-        Cache hello = cacheManager.getCache("hello");
-        request.setAttribute("user", hello.getName());
         return "views/index";
     }
 }

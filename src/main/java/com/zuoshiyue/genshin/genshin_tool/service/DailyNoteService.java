@@ -4,10 +4,13 @@ import com.zuoshiyue.genshin.genshin_tool.enums.RoleEnum;
 import com.zuoshiyue.genshin.genshin_tool.repository.DailyNoteRepository;
 import com.zuoshiyue.genshin.genshin_tool.util.DateUtil;
 import com.zuoshiyue.genshin.genshin_tool.util.Safes;
+import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
+import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.TaskInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 
@@ -33,19 +36,25 @@ public class DailyNoteService {
     @Resource
     private DailyNoteRepository dailyNoteRepository;
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    @Resource
+    private AccountCacheService accountCacheService;
 
     private static final int TRANSFORMER_START_TIME = 7 * 86400;
 
     public void getDailyNoteInfo() {
         long now = System.currentTimeMillis();
-        DailyNoteResponse dailyNote = dailyNoteRepository.getDailyNote();
+        Account account = accountCacheService.getAccount();
+        if (Objects.isNull(account) || StringUtils.isEmpty(account.getRoleId()) || StringUtils.isEmpty(account.getCookie())){
+            log.error("缓存用户信息为空");
+            return;
+        }
+        DailyNoteResponse dailyNote = dailyNoteRepository.getDailyNote(account.getRoleId(), account.getCookie());
         if (dailyNote == null) {
             log.error("未获取到便笺信息");
             return;
         }
         //每日委托
-        getTaskInfo(dailyNote, now);
+        TaskInfo taskInfo = getTaskInfo(dailyNote, now);
         //树脂
         getResinInfo(dailyNote, now);
         //宝钱
@@ -196,7 +205,7 @@ public class DailyNoteService {
     /**
      * 每日委托
      */
-    private void getTaskInfo(DailyNoteResponse dailyNote, long now) {
+    private TaskInfo getTaskInfo(DailyNoteResponse dailyNote, long now) {
         //委托总数
         Integer totalTaskNum = dailyNote.getTotalTaskNum();
         //委托完成数量
@@ -204,5 +213,6 @@ public class DailyNoteService {
         //每日委托额外奖励是否领取
         Boolean isExtraTaskRewardReceived = dailyNote.getIsExtraTaskRewardReceived();
         System.out.println("每日委托：" + finishedTaskNum + "/" + totalTaskNum + "\t额外奖励：" + BooleanUtils.toString(isExtraTaskRewardReceived, "领取", "未领取"));
+        return TaskInfo.builder().totalTaskNum(totalTaskNum).finishedTaskNum(finishedTaskNum).isExtraTaskRewardReceived(isExtraTaskRewardReceived).build();
     }
 }

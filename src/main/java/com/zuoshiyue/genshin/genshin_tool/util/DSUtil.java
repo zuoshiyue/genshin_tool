@@ -2,7 +2,6 @@ package com.zuoshiyue.genshin.genshin_tool.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.ROLE_ID;
 import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.SERVER;
 
 /**
@@ -20,10 +19,10 @@ public class DSUtil {
 
 
 
-    public static String getDS() {
+    public static String getDS(String roleId) {
         String timestamp = "" + System.currentTimeMillis() / 1000;
         String randomStr = randomIntFromInt(100000, 200000);
-        String sign = DigestUtils.md5Hex(String.format(SIGN_FORMAT, timestamp, randomStr, ROLE_ID));
+        String sign = DigestUtils.md5Hex(String.format(SIGN_FORMAT, timestamp, randomStr, roleId));
         return timestamp + "," + randomStr + "," + sign;
     }
 
