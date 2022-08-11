@@ -1,6 +1,7 @@
 package com.zuoshiyue.genshin.genshin_tool.controller;
 
 import com.zuoshiyue.genshin.genshin_tool.service.AccountCacheService;
+import com.zuoshiyue.genshin.genshin_tool.service.DailyNoteService;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,9 @@ public class AccountController extends BaseController {
     private AccountCacheService accountCacheService;
 
     @Resource
+    private DailyNoteService dailyNoteService;
+
+    @Resource
     private CacheManager cacheManager;
 
     @RequestMapping("/save")
@@ -40,8 +44,14 @@ public class AccountController extends BaseController {
         if (Objects.isNull(account1)) {
             return "views/error";
         }
-        request.setAttribute("user", account1);\
+        request.setAttribute("user", account1);
 //        return "redirect:account/save";
+        return this.getDailyNote(request);
+    }
+
+    @RequestMapping("/getDailyNote")
+    public String getDailyNote(HttpServletRequest request) {
+        dailyNoteService.getDailyNoteInfo();
         return this.get(request);
     }
 
