@@ -1,11 +1,17 @@
 package com.zuoshiyue.genshin.genshin_tool.service;
 
+import com.zuoshiyue.genshin.genshin_tool.util.JsonUtil;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author lupengfei
@@ -16,9 +22,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountCacheService {
 
-    @Cacheable(cacheNames = "account", key = "#roleId")
+    @Resource
+    private CacheManager cacheManager;
+
+    @CachePut(cacheNames = "account", key = "'account'")
     public Account cacheAccount(String roleId, String cookie){
-        if (StringUtils.isNotBlank(roleId) || StringUtils.isNotBlank(cookie)){
+        if (StringUtils.isBlank(roleId) || StringUtils.isBlank(cookie)){
             return null;
         }
         return Account.builder()
@@ -27,9 +36,15 @@ public class AccountCacheService {
                 .build();
     }
 
-    @CachePut(cacheNames = "account")
-    public Account getAccount(String roleId) {
-
-        return null;
+    public Account getAccount() {
+        Cache cache = cacheManager.getCache("account");
+        if (Objects.isNull(cache)){
+            return null;
+        }
+        Cache.ValueWrapper account = cache.get("account");
+        if (Objects.isNull(account)){
+            return null;
+        }
+        return JsonUtil.of(JsonUtil.toJson(account.get()), Account.class);
     }
 }
