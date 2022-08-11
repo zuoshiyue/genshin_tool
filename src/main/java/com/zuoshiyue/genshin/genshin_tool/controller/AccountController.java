@@ -40,9 +40,9 @@ public class AccountController extends BaseController {
         if (Objects.isNull(account1)) {
             return "views/error";
         }
-        request.setAttribute("user", account1);
-
-        return "views/index";
+        request.setAttribute("user", account1);\
+//        return "redirect:account/save";
+        return this.get(request);
     }
 
     @RequestMapping("/get")
