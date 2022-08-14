@@ -6,7 +6,7 @@ import com.zuoshiyue.genshin.genshin_tool.util.DateUtil;
 import com.zuoshiyue.genshin.genshin_tool.util.Safes;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
-import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.TaskInfo;
+import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -56,15 +56,15 @@ public class DailyNoteService {
         //每日委托
         TaskInfo taskInfo = getTaskInfo(dailyNote, now);
         //树脂
-        getResinInfo(dailyNote, now);
+        ResinInfo resinInfo = getResinInfo(dailyNote, now);
         //宝钱
-        getHomeCoin(dailyNote, now);
+        HomeCoinInfo homeCoinInfo = getHomeCoin(dailyNote, now);
         //派遣
         getExpeditionInfo(dailyNote, now);
         //半价周本
-        getWeeklyExplorationInfo(dailyNote, now);
+        WeeklyExplorationInfo weeklyExplorationInfo = getWeeklyExplorationInfo(dailyNote, now);
         //参量质变
-        getTransformerInfo(dailyNote, now);
+        TransformerInfo transformerInfo = getTransformerInfo(dailyNote, now);
 
     }
 
@@ -125,34 +125,44 @@ public class DailyNoteService {
     /**
      * 参量质变仪
      */
-    private void getTransformerInfo(DailyNoteResponse dailyNote, long now) {
+    private TransformerInfo getTransformerInfo(DailyNoteResponse dailyNote, long now) {
         DailyNoteResponse.TransformerDTO.RecoveryTimeDTO recoveryTimeDTO = Optional.ofNullable(dailyNote).map(DailyNoteResponse::getTransformer).map(DailyNoteResponse.TransformerDTO::getRecoveryTime).orElse(null);
         if (Objects.isNull(recoveryTimeDTO)) {
-            return;
+            return null;
         }
-        String result = "";
+        TransformerInfo transformerInfo = new TransformerInfo();
         Boolean reached = Optional.ofNullable(recoveryTimeDTO.getReached()).orElse(false);
         if (reached) {
-            result = "可用";
+            transformerInfo.setReached(true);
+            transformerInfo.setTransformerReachedDesc("可用");
         } else {
+            transformerInfo.setReached(false);
             if (Objects.nonNull(recoveryTimeDTO.getDay()) && recoveryTimeDTO.getDay() > 0) {
-                result += String.format("剩%s天", recoveryTimeDTO.getDay());
+                Integer day = recoveryTimeDTO.getDay();
+                transformerInfo.setRecoveryTime(day * 24* 60 *60L);
+                transformerInfo.setTransformerReachedDesc(String.format("剩%s天", day));
             } else if (Objects.nonNull(recoveryTimeDTO.getHour()) && recoveryTimeDTO.getHour() > 0) {
-                result += String.format("剩%s时", recoveryTimeDTO.getHour());
+                Integer hour = recoveryTimeDTO.getHour();
+                transformerInfo.setRecoveryTime(hour * 60 *60L);
+                transformerInfo.setTransformerReachedDesc(String.format("剩%s时", hour));
             } else if (Objects.nonNull(recoveryTimeDTO.getMinute()) && recoveryTimeDTO.getMinute() > 0) {
-                result += String.format("剩%s分", recoveryTimeDTO.getMinute());
+                Integer minute = recoveryTimeDTO.getMinute();
+                transformerInfo.setRecoveryTime(minute * 60L);
+                transformerInfo.setTransformerReachedDesc(String.format("剩%s分", minute));
             } else if (Objects.nonNull(recoveryTimeDTO.getSecond()) && recoveryTimeDTO.getSecond() > 0) {
-                result += String.format("剩%s秒", recoveryTimeDTO.getSecond());
+                Integer second = recoveryTimeDTO.getSecond();
+                transformerInfo.setRecoveryTime((long) second);
+                transformerInfo.setTransformerReachedDesc(String.format("剩%s秒", second));
             }
         }
-        System.out.println("参量质变仪状态：" + result);
-        this.getProgressBar(recoveryTimeDTO, now);
+        transformerInfo.setRecoveryPTC(this.getProgressBar(recoveryTimeDTO, now));
+        return transformerInfo;
     }
 
     /**
      * 参量质变仪 - 进度条
      */
-    private void getProgressBar(DailyNoteResponse.TransformerDTO.RecoveryTimeDTO recoveryTimeDTO, long now) {
+    private int getProgressBar(DailyNoteResponse.TransformerDTO.RecoveryTimeDTO recoveryTimeDTO, long now) {
         int day = Optional.ofNullable(recoveryTimeDTO).map(DailyNoteResponse.TransformerDTO.RecoveryTimeDTO::getDay).orElse(0);
         int hour = Optional.ofNullable(recoveryTimeDTO).map(DailyNoteResponse.TransformerDTO.RecoveryTimeDTO::getHour).orElse(0);
         int minute = Optional.ofNullable(recoveryTimeDTO).map(DailyNoteResponse.TransformerDTO.RecoveryTimeDTO::getMinute).orElse(0);
@@ -161,45 +171,49 @@ public class DailyNoteService {
         if (Optional.ofNullable(recoveryTimeDTO).map(DailyNoteResponse.TransformerDTO.RecoveryTimeDTO::getReached).orElse(false)) {
             startranscurrent = TRANSFORMER_START_TIME;
         }
-        int barNum = new BigDecimal(startranscurrent * 1.00 / TRANSFORMER_START_TIME).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).intValue();
-        System.out.println("参量质变仪 - 进度条：" + barNum + "%");
+        return new BigDecimal(startranscurrent * 1.00 / TRANSFORMER_START_TIME).setScale(2, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).intValue();
     }
 
     /**
      * 周本
      */
-    private void getWeeklyExplorationInfo(DailyNoteResponse dailyNote, long now) {
+    private WeeklyExplorationInfo getWeeklyExplorationInfo(DailyNoteResponse dailyNote, long now) {
         //减半上限
         Integer resinDiscountNumLimit = dailyNote.getResinDiscountNumLimit();
         //减半剩余数量
         Integer remainResinDiscountNum = dailyNote.getRemainResinDiscountNum();
         System.out.println("周本树脂减半次数：" + resinDiscountNumLimit + "\t剩余次数：" + remainResinDiscountNum);
+        return WeeklyExplorationInfo.builder().resinDiscountNumLimit(resinDiscountNumLimit).remainResinDiscountNum(remainResinDiscountNum).build();
     }
 
     /**
      * 家园宝钱
      */
-    private void getHomeCoin(DailyNoteResponse dailyNote, long now) {
+    private HomeCoinInfo getHomeCoin(DailyNoteResponse dailyNote, long now) {
         //宝钱最大值
         Integer maxHomeCoin = dailyNote.getMaxHomeCoin();
         //宝钱当前值
         Integer currentHomeCoin = dailyNote.getCurrentHomeCoin();
         //宝钱预计恢复时间
         String homeCoinRecoveryTime = dailyNote.getHomeCoinRecoveryTime();
-        System.out.println("宝钱：" + currentHomeCoin + "/" + maxHomeCoin + "\t预计完成时间：" + DateUtil.getClock(NumberUtils.toLong(homeCoinRecoveryTime), now));
+        String recoveryTimeDesc = DateUtil.getClock(NumberUtils.toLong(homeCoinRecoveryTime), now);
+        System.out.println("宝钱：" + currentHomeCoin + "/" + maxHomeCoin + "\t预计完成时间：" + recoveryTimeDesc);
+        return HomeCoinInfo.builder().maxHomeCoin(maxHomeCoin).currentHomeCoin(currentHomeCoin).homeCoinRecoveryTime(homeCoinRecoveryTime).recoveryTimeDesc(recoveryTimeDesc).build();
     }
 
     /**
      * 树脂情况
      */
-    private void getResinInfo(DailyNoteResponse dailyNote, long now) {
+    private ResinInfo getResinInfo(DailyNoteResponse dailyNote, long now) {
         //树脂上限
         Integer maxResin = dailyNote.getMaxResin();
         //当前树脂数量
         Integer currentResin = dailyNote.getCurrentResin();
         //树脂预计恢复时间
         String resinRecoveryTime = dailyNote.getResinRecoveryTime();
-        System.out.println("树脂：" + currentResin + "/" + maxResin + "\t预计完成时间：" + DateUtil.getClock(NumberUtils.toLong(resinRecoveryTime), now));
+        String recoveryTimeDesc = DateUtil.getClock(NumberUtils.toLong(resinRecoveryTime), now);
+        System.out.println("树脂：" + currentResin + "/" + maxResin + "\t预计完成时间：" + recoveryTimeDesc);
+        return ResinInfo.builder().maxResin(maxResin).currentResin(currentResin).resinRecoveryTime(resinRecoveryTime).recoveryTimeDesc(recoveryTimeDesc).build();
     }
 
     /**
