@@ -1,5 +1,6 @@
 package com.zuoshiyue.genshin.genshin_tool.repository;
 
+
 import com.zuoshiyue.genshin.genshin_tool.util.JsonUtil;
 import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -13,20 +14,17 @@ import java.net.URLConnection;
 import java.util.Map;
 
 import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.SERVER;
-import static com.zuoshiyue.genshin.genshin_tool.util.DSUtil.getDS;
 
 /**
- * @author zuoshiyue
- * @date 2022/8/3 17:21
- * @desc 返回原神便笺信息
- **/
+ * @author lupengfei
+ */
 @Slf4j
 @Component
-public class DailyNoteRepository extends BaseRepository {
+public class CharacterRepository extends BaseRepository {
 
-    private static final String DAILY_NOTE_URL = "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?server=%s&role_id=%s";
+    private static final String DAILY_NOTE_URL = "https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/character?server=%s&role_id=%s";
 
-    public DailyNoteResponse getDailyNote(String roleId, String cookie) {
+    public DailyNoteResponse getCharacter(String roleId, String cookie) {
 
         try {
             String fullUrl = String.format(DAILY_NOTE_URL, SERVER, roleId);
