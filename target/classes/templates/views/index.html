@@ -7,7 +7,13 @@
     <script th:replace="common/head::static"></script>
 </head>
 <body>
-roleId = <a th:text="${user.roleId}" data-no-instant=""></a>
-dailyNoteInfo = <a th:text="${dailyNoteInfo}" data-no-instant=""></a>
+roleId = <a th:text="${user.roleId}" data-no-instant=""></a><br>
+dailyNoteInfo <br>
+taskInfo = <a th:text="${dailyNoteInfo.taskInfo}" data-no-instant=""></a><br>
+resinInfo = <a th:text="${dailyNoteInfo.resinInfo}" data-no-instant=""></a><br>
+homeCoinInfo = <a th:text="${dailyNoteInfo.homeCoinInfo}" data-no-instant=""></a><br>
+expeditionInfo = <a th:text="${dailyNoteInfo.expeditionInfo}" data-no-instant=""></a><br>
+weeklyExplorationInfo = <a th:text="${dailyNoteInfo.weeklyExplorationInfo}" data-no-instant=""></a><br>
+transformerInfo = <a th:text="${dailyNoteInfo.transformerInfo}" data-no-instant=""></a><br>
 </body>
 </html>
