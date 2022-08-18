@@ -5,15 +5,9 @@ import com.zuoshiyue.genshin.genshin_tool.vo.DailyNoteResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 
 import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.SERVER;
-import static com.zuoshiyue.genshin.genshin_tool.util.DSUtil.getDS;
 
 /**
  * @author zuoshiyue
