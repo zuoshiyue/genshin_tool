@@ -10,19 +10,17 @@ import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * @author zuoshiyue
@@ -41,17 +39,17 @@ public class DailyNoteService {
 
     private static final int TRANSFORMER_START_TIME = 7 * 86400;
 
-    public void getDailyNoteInfo() {
+    public DailyNoteInfo getDailyNoteInfo() {
         long now = System.currentTimeMillis();
         Account account = accountCacheService.getAccount();
-        if (Objects.isNull(account) || StringUtils.isEmpty(account.getRoleId()) || StringUtils.isEmpty(account.getCookie())){
+        if (Objects.isNull(account) || StringUtils.isEmpty(account.getRoleId()) || StringUtils.isEmpty(account.getCookie())) {
             log.error("缓存用户信息为空");
-            return;
+            return null;
         }
         DailyNoteResponse dailyNote = dailyNoteRepository.getDailyNote(account.getRoleId(), account.getCookie());
         if (dailyNote == null) {
             log.error("未获取到便笺信息");
-            return;
+            return null;
         }
         //每日委托
         TaskInfo taskInfo = getTaskInfo(dailyNote, now);
@@ -60,18 +58,25 @@ public class DailyNoteService {
         //宝钱
         HomeCoinInfo homeCoinInfo = getHomeCoin(dailyNote, now);
         //派遣
-        getExpeditionInfo(dailyNote, now);
+        ExpeditionInfo expeditionInfo = getExpeditionInfo(dailyNote, now);
         //半价周本
         WeeklyExplorationInfo weeklyExplorationInfo = getWeeklyExplorationInfo(dailyNote, now);
         //参量质变
         TransformerInfo transformerInfo = getTransformerInfo(dailyNote, now);
-
+        return DailyNoteInfo.builder()
+                .taskInfo(taskInfo)
+                .resinInfo(resinInfo)
+                .homeCoinInfo(homeCoinInfo)
+                .expeditionInfo(expeditionInfo)
+                .weeklyExplorationInfo(weeklyExplorationInfo)
+                .transformerInfo(transformerInfo)
+                .build();
     }
 
     /**
      * 派遣任务
      */
-    private void getExpeditionInfo(DailyNoteResponse dailyNote, long now) {
+    private ExpeditionInfo getExpeditionInfo(DailyNoteResponse dailyNote, long now) {
         //当前探索派遣人数
         Integer currentExpeditionNum = Optional.ofNullable(dailyNote.getCurrentExpeditionNum()).orElse(-1);
         //探索派遣限制
@@ -80,28 +85,13 @@ public class DailyNoteService {
         Boolean isExtraTaskRewardReceived = Optional.ofNullable(dailyNote.getIsExtraTaskRewardReceived()).orElse(false);
         //派遣人员信息
         List<DailyNoteResponse.ExpeditionsDTO> expeditions = dailyNote.getExpeditions();
-        String result = "";
-        if (maxExpeditionNum < 0) {
-            result += "未派遣，请添加派遣角色";
-        } else {
-            result += String.format("共%s人", Optional.of(currentExpeditionNum).orElse(0));
-        }
 
-        AtomicLong minCoverTime = new AtomicLong(Safes.of(expeditions).stream().filter(Objects::nonNull).findFirst()
-                .map(DailyNoteResponse.ExpeditionsDTO::getRemainedTime).map(NumberUtils::toLong).orElse(0L));
-        AtomicBoolean hasFinished = new AtomicBoolean(false);
-        Safes.of(expeditions).stream().filter(Objects::nonNull)
-                .forEach(expedition -> {
-                    String status = expedition.getStatus();
-                    long remainedTime = NumberUtils.toLong(expedition.getRemainedTime(), 0);
-                    if (remainedTime < minCoverTime.get()) {
-                        minCoverTime.set(remainedTime);
-                    }
-                    if (StringUtils.equalsIgnoreCase(status, "Finished")) {
-                        hasFinished.set(true);
-                    }
-                    String clock = DateUtil.getClock(remainedTime, now);
-                    String avatarSideIcon = expedition.getAvatarSideIcon();
+        List<ExpeditionAvatarInfo> expeditionAvatars = Safes.of(expeditions).stream().filter(Objects::nonNull)
+                .map(v -> {
+                    String status = v.getStatus();
+                    long remainedTime = NumberUtils.toLong(v.getRemainedTime(), -1);
+                    String remainedTimeDesc = DateUtil.getClock(remainedTime, now);
+                    String avatarSideIcon = v.getAvatarSideIcon();
                     String[] split = avatarSideIcon.split("/");
                     String sp = split[split.length - 1];
                     String[] split1 = sp.split("\\.");
@@ -109,17 +99,34 @@ public class DailyNoteService {
                     String[] s1 = s.split("_");
                     String name = s1[s1.length - 1];
                     RoleEnum byEnName = RoleEnum.getByEnName(name);
-                    System.out.println("角色:" + byEnName.getCnName() + "\t时间：" + clock);
-                });
-        if (hasFinished.get()) {
-            result += ", 派遣任务奖励可领取";
-        } else if (minCoverTime.get() > 0) {
-            String clock = DateUtil.getClock(minCoverTime.get(), now);
-            result += ", " + clock;
-        }
+                    return ExpeditionAvatarInfo.builder()
+                            .status(status)
+                            .coverTime(remainedTime)
+                            .coverTimeDesc(remainedTimeDesc)
+                            .name(Optional.ofNullable(byEnName).map(RoleEnum::getCnName).orElse(name))
+                            .icon(Optional.ofNullable(byEnName).map(RoleEnum::getAvatarIcon).orElse(avatarSideIcon))
+                            .build();
+                }).collect(Collectors.toList());
 
-        System.out.println("派遣探索：" + result);
+        Boolean hasFinished = Safes.of(expeditionAvatars).stream().filter(Objects::nonNull)
+                .map(v -> StringUtils.equalsIgnoreCase(v, "Finished"))
+                .findFirst().orElse(false);
 
+        Long minCoverTime = Safes.of(expeditionAvatars).stream().filter(Objects::nonNull)
+                .filter(v -> Objects.nonNull(v.getCoverTime()))
+                .sorted(Comparator.comparingLong(ExpeditionAvatarInfo::getCoverTime).reversed())
+                .map(ExpeditionAvatarInfo::getCoverTime)
+                .findFirst().orElse(0L);
+
+        return ExpeditionInfo.builder()
+                .currentExpeditionNum(currentExpeditionNum)
+                .maxExpeditionNum(maxExpeditionNum)
+                .isExtraTaskRewardReceived(isExtraTaskRewardReceived)
+                .hasFinished(hasFinished)
+                .minCoverTime(minCoverTime)
+                .minCoverTimeDesc(DateUtil.getClock(minCoverTime, now))
+                .expeditions(expeditionAvatars)
+                .build();
     }
 
     /**
@@ -139,11 +146,11 @@ public class DailyNoteService {
             transformerInfo.setReached(false);
             if (Objects.nonNull(recoveryTimeDTO.getDay()) && recoveryTimeDTO.getDay() > 0) {
                 Integer day = recoveryTimeDTO.getDay();
-                transformerInfo.setRecoveryTime(day * 24* 60 *60L);
+                transformerInfo.setRecoveryTime(day * 24 * 60 * 60L);
                 transformerInfo.setTransformerReachedDesc(String.format("剩%s天", day));
             } else if (Objects.nonNull(recoveryTimeDTO.getHour()) && recoveryTimeDTO.getHour() > 0) {
                 Integer hour = recoveryTimeDTO.getHour();
-                transformerInfo.setRecoveryTime(hour * 60 *60L);
+                transformerInfo.setRecoveryTime(hour * 60 * 60L);
                 transformerInfo.setTransformerReachedDesc(String.format("剩%s时", hour));
             } else if (Objects.nonNull(recoveryTimeDTO.getMinute()) && recoveryTimeDTO.getMinute() > 0) {
                 Integer minute = recoveryTimeDTO.getMinute();

@@ -2,11 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title >Index</title>
+    <title>Index</title>
     <!--默认拼接前缀路径,开头请勿再添加斜杠,防止部署运行报错！-->
     <script th:replace="common/head::static"></script>
 </head>
 <body>
-<a  th:text="${user}" data-no-instant=""></a>
+roleId = <a th:text="${user.roleId}" data-no-instant=""></a>
+dailyNoteInfo = <a th:text="${dailyNoteInfo}" data-no-instant=""></a>
 </body>
 </html>

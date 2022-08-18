@@ -3,6 +3,7 @@ package com.zuoshiyue.genshin.genshin_tool.controller;
 import com.zuoshiyue.genshin.genshin_tool.service.AccountCacheService;
 import com.zuoshiyue.genshin.genshin_tool.service.DailyNoteService;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
+import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.DailyNoteInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.cache.CacheManager;
@@ -51,7 +52,8 @@ public class AccountController extends BaseController {
 
     @RequestMapping("/getDailyNote")
     public String getDailyNote(HttpServletRequest request) {
-        dailyNoteService.getDailyNoteInfo();
+        DailyNoteInfo dailyNoteInfo = dailyNoteService.getDailyNoteInfo();
+        request.setAttribute("dailyNoteInfo", dailyNoteInfo);
         return this.get(request);
     }
 
