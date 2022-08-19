@@ -55,7 +55,7 @@ public class CharacterResponse {
          */
         private String name;
         /**
-         * 元素属性
+         * 元素属性名称
          */
         private String element;
         /**

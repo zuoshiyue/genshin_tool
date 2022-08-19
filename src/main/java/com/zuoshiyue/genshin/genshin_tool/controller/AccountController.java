@@ -4,17 +4,20 @@ import com.zuoshiyue.genshin.genshin_tool.service.AccountCacheService;
 import com.zuoshiyue.genshin.genshin_tool.service.CharacterService;
 import com.zuoshiyue.genshin.genshin_tool.service.DailyNoteService;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
+import com.zuoshiyue.genshin.genshin_tool.vo.character.CharacterInfo;
 import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.DailyNoteInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -57,15 +60,20 @@ public class AccountController extends BaseController {
     }
 
     @RequestMapping("getcCharacter")
-    public String getCharacter(HttpServletRequest request){
-        characterService.getCharacterInfo();
+    public String getCharacter(HttpServletRequest request) {
+        List<CharacterInfo> characterInfos = characterService.getCharacterInfo();
+        if (!CollectionUtils.isEmpty(characterInfos)) {
+            request.setAttribute("characterInfo", characterInfos);
+        }
         return this.get(request);
     }
 
     @RequestMapping("/getDailyNote")
     public String getDailyNote(HttpServletRequest request) {
         DailyNoteInfo dailyNoteInfo = dailyNoteService.getDailyNoteInfo();
-        request.setAttribute("dailyNoteInfo", dailyNoteInfo);
+        if (Objects.nonNull(dailyNoteInfo)) {
+            request.setAttribute("dailyNoteInfo", dailyNoteInfo);
+        }
         return this.get(request);
     }
 

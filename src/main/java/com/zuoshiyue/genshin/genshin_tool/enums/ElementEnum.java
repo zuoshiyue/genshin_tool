@@ -32,11 +32,11 @@ public enum ElementEnum {
     public static final Map<String, ElementEnum> ENUM_MAP = new LinkedHashMap<>();
 
     static {
-        ENUM_MAP.putAll(Arrays.stream(ElementEnum.values()).collect(Collectors.toMap(ElementEnum::getName, item -> item)));
+        ENUM_MAP.putAll(Arrays.stream(ElementEnum.values()).collect(Collectors.toMap(v -> v.getName().toLowerCase().trim(), item -> item)));
     }
 
-    public static final ElementEnum getElementEnumByName(String name) {
-        return ENUM_MAP.get(name);
+    public static final ElementEnum getElementEnumByName(String name){
+        return ENUM_MAP.get(name.toLowerCase().trim());
     }
 
 }
