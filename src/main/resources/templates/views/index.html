@@ -7,23 +7,36 @@
     <script th:replace="common/head::static"></script>
 </head>
 <body>
-名称 = <a th:text="${user.nickname}" data-no-instant=""></a><br>
-等级 = <a th:text="${user.level}" data-no-instant=""></a><br>
-roleId = <a th:text="${user.roleId}" data-no-instant=""></a><br>
+<div class="col-md-4" th:if="${user != null}">
+
+    名称 = <a th:text="${user.nickname}" data-no-instant=""></a><br>
+    等级 = <a th:text="${user.level}" data-no-instant=""></a><br>
+    roleId = <a th:text="${user.roleId}" data-no-instant=""></a><br>
+</div>
 <br><br>
 dailyNoteInfo <br>
-taskInfo = <a th:text="${dailyNoteInfo.taskInfo}" data-no-instant=""></a><br>
-resinInfo = <a th:text="${dailyNoteInfo.resinInfo}" data-no-instant=""></a><br>
-homeCoinInfo = <a th:text="${dailyNoteInfo.homeCoinInfo}" data-no-instant=""></a><br>
-expeditionInfo = <a th:text="${dailyNoteInfo.expeditionInfo}" data-no-instant=""></a><br>
-weeklyExplorationInfo = <a th:text="${dailyNoteInfo.weeklyExplorationInfo}" data-no-instant=""></a><br>
-transformerInfo = <a th:text="${dailyNoteInfo.transformerInfo}" data-no-instant=""></a><br>
+<div class="col-md-5" th:if="${dailyNoteInfo != null}">
+
+    taskInfo = <a th:text="${dailyNoteInfo.taskInfo != null ? dailyNoteInfo.taskInfo : 'NULL' }" data-no-instant=""></a><br>
+    resinInfo = <a th:text="${dailyNoteInfo.resinInfo ? dailyNoteInfo.resinInfo : 'NULL' }" data-no-instant=""></a><br>
+    homeCoinInfo = <a th:text="${dailyNoteInfo.homeCoinInfo ? dailyNoteInfo.homeCoinInfo : 'NULL' }"
+                      data-no-instant=""></a><br>
+    expeditionInfo = <a th:text="${dailyNoteInfo.expeditionInfo ? dailyNoteInfo.expeditionInfo : 'NULL' }"
+                        data-no-instant=""></a><br>
+    weeklyExplorationInfo = <a
+        th:text="${dailyNoteInfo.weeklyExplorationInfo ? dailyNoteInfo.weeklyExplorationInfo : 'NULL' }"
+        data-no-instant=""></a><br>
+    transformerInfo = <a th:text="${dailyNoteInfo.transformerInfo ? dailyNoteInfo.transformerInfo : 'NULL' }"
+                         data-no-instant=""></a><br>
+</div>
 <br><br>
 characterInfo <br>
-<ul th:each="c : ${characterInfo}">
-    <li th:text="${cStat.index+1}"></li>
-    <li th:text="${c}"></li>
-</ul>
+<div class="col-md-6" th:if="${characterInfo != null}">
+    <ul th:each="c : ${characterInfo}">
+        <li th:text="${cStat.index+1}"></li>
+        <li th:text="${c}"></li>
+    </ul>
+</div>
 
 </body>
 </html>
