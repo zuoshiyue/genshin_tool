@@ -11,7 +11,7 @@ import java.util.Map;
 import static com.zuoshiyue.genshin.genshin_tool.common.account.AccountConfig.SERVER;
 
 /**
- * @author lupengfei
+ * @author zuoshyiue
  */
 @Slf4j
 @Component

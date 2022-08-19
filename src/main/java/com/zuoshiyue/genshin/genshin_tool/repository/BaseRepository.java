@@ -10,7 +10,7 @@ import java.net.URLConnection;
 import static com.zuoshiyue.genshin.genshin_tool.util.DSUtil.getDS;
 
 /**
- * @author lupengfei
+ * @author zuoshyiue
  */
 public abstract class BaseRepository {
     public static String getHttpResponse(String allConfigUrl, String roleId, String cookies) {

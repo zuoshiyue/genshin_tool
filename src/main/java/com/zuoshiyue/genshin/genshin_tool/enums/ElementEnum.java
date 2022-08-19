@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * @author lupengfei
+ * @author zuoshyiue
  * 角色元素属性枚举
  */
 @AllArgsConstructor
