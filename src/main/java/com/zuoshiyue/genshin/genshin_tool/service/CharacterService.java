@@ -6,6 +6,7 @@ import com.zuoshiyue.genshin.genshin_tool.util.Safes;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import com.zuoshiyue.genshin.genshin_tool.vo.CharacterResponse;
 import com.zuoshiyue.genshin.genshin_tool.vo.character.CharacterInfo;
+import com.zuoshiyue.genshin.genshin_tool.vo.character.WeaponInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
@@ -57,6 +58,15 @@ public class CharacterService {
                         .icon(v.getIcon())
                         .image(v.getImage())
                         .weaponName(v.getWeapon().getName())
+                        .weaponInfo(WeaponInfo.builder()
+                                .name(v.getWeapon().getName())
+                                .icon(v.getWeapon().getIcon())
+                                .rarity(v.getWeapon().getRarity())
+                                .level(v.getWeapon().getLevel())
+                                .promoteLevel(v.getWeapon().getPromoteLevel())
+                                .typeName(v.getWeapon().getTypeName())
+                                .desc(v.getWeapon().getDesc())
+                                .build())
                         .activedConstellationNum(v.getActivedConstellationNum())
                         .build())
                 .filter(Objects::nonNull)

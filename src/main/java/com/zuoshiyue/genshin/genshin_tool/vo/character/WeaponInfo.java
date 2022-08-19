@@ -18,6 +18,6 @@ public class WeaponInfo {
     private Integer rarity;
     private Integer level;
     private Integer promoteLevel;
-    private Integer typeName;
+    private String typeName;
     private String desc;
 }

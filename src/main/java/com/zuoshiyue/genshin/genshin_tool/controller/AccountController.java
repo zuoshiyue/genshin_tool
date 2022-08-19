@@ -50,7 +50,7 @@ public class AccountController extends BaseController {
         }
         Account account1 = accountCacheService.cacheAccount(account.getRoleId(), account.getCookie());
         if (Objects.isNull(account1)) {
-            return "views/error";
+            return "/error";
         }
         request.setAttribute("user", account1);
 //        return "redirect:account/save";
@@ -59,7 +59,7 @@ public class AccountController extends BaseController {
         return dailyNote;
     }
 
-    @RequestMapping("getcCharacter")
+    @RequestMapping("getCharacter")
     public String getCharacter(HttpServletRequest request) {
         List<CharacterInfo> characterInfos = characterService.getCharacterInfo();
         if (!CollectionUtils.isEmpty(characterInfos)) {
@@ -81,7 +81,7 @@ public class AccountController extends BaseController {
     public String get(HttpServletRequest request) {
         Account account = accountCacheService.getAccount();
         if (Objects.isNull(account)) {
-            return "views/error";
+            return "/error";
         }
         request.setAttribute("user", account);
         return "views/index";

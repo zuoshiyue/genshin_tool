@@ -5,6 +5,7 @@ import com.zuoshiyue.genshin.genshin_tool.util.JsonUtil;
 import com.zuoshiyue.genshin.genshin_tool.vo.CharacterResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class CharacterRepository extends BaseRepository {
             String fullUrl = String.format(CHARACTER_URL, SERVER, roleId);
             String httpResponse = postHttpResponse(fullUrl, roleId, cookie);
             Map<String, Object> stringObjectMap = JsonUtil.ofMap(httpResponse, String.class, Object.class);
-            if (stringObjectMap.get("retcode") == null || (int) stringObjectMap.get("retcode") != 0) {
+            if (CollectionUtils.isEmpty(stringObjectMap) || stringObjectMap.get("retcode") == null || (int) stringObjectMap.get("retcode") != 0) {
                 return null;
             }
             Object data = stringObjectMap.get("data");
