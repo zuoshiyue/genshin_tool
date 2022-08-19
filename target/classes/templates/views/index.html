@@ -17,25 +17,38 @@
 dailyNoteInfo <br>
 <div class="col-md-5" th:if="${dailyNoteInfo != null}">
 
-    taskInfo = <a th:text="${dailyNoteInfo.taskInfo != null ? dailyNoteInfo.taskInfo : 'NULL' }" data-no-instant=""></a><br>
-    resinInfo = <a th:text="${dailyNoteInfo.resinInfo ? dailyNoteInfo.resinInfo : 'NULL' }" data-no-instant=""></a><br>
-    homeCoinInfo = <a th:text="${dailyNoteInfo.homeCoinInfo ? dailyNoteInfo.homeCoinInfo : 'NULL' }"
+    taskInfo = <a th:text="${dailyNoteInfo.taskInfo?: 'NULL' }" data-no-instant=""></a><br>
+    resinInfo = <a th:text="${dailyNoteInfo.resinInfo ?: 'NULL' }" data-no-instant=""></a><br>
+    homeCoinInfo = <a th:text="${dailyNoteInfo.homeCoinInfo ?: 'NULL' }"
                       data-no-instant=""></a><br>
-    expeditionInfo = <a th:text="${dailyNoteInfo.expeditionInfo ? dailyNoteInfo.expeditionInfo : 'NULL' }"
+    expeditionInfo = <a th:text="${dailyNoteInfo.expeditionInfo ?: 'NULL' }"
                         data-no-instant=""></a><br>
     weeklyExplorationInfo = <a
-        th:text="${dailyNoteInfo.weeklyExplorationInfo ? dailyNoteInfo.weeklyExplorationInfo : 'NULL' }"
+        th:text="${dailyNoteInfo.weeklyExplorationInfo ?: 'NULL' }"
         data-no-instant=""></a><br>
-    transformerInfo = <a th:text="${dailyNoteInfo.transformerInfo ? dailyNoteInfo.transformerInfo : 'NULL' }"
+    transformerInfo = <a th:text="${dailyNoteInfo.transformerInfo ?: 'NULL' }"
                          data-no-instant=""></a><br>
 </div>
 <br><br>
 characterInfo <br>
 <div class="col-md-6" th:if="${characterInfo != null}">
-    <ul th:each="c : ${characterInfo}">
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>INFO</th>
+        </tr>
+        <div th:each="c : ${characterInfo}">
+
+        <tr>
+            <td> <span th:text="${cStat.index+1}"></span></td>
+            <td> <span th:text="${c}"></span></td>
+        </tr>
+        </div>
+    </table>
+  <!--  <ul th:each="c : ${characterInfo}">
         <li th:text="${cStat.index+1}"></li>
         <li th:text="${c}"></li>
-    </ul>
+    </ul>-->
 </div>
 
 </body>
