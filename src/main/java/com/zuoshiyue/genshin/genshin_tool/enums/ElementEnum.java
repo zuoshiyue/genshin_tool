@@ -19,7 +19,7 @@ public enum ElementEnum {
     GEO("Geo", "岩"),
     ELECTRO("Electro", "雷"),
     HYDRO("Hydro", "水"),
-    PYRO("Pyro", "水"),
+    PYRO("Pyro", "火"),
     ANEMO("Anemo", "风"),
 
     ;
