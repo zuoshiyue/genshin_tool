@@ -24,8 +24,17 @@ public class CharacterResponse {
     @Data
     public static class RoleDTO {
         private String avatarUrl;
+        /**
+         * 冒险者名称
+         */
         private String nickname;
+        /**
+         * 服务器区域
+         */
         private String region;
+        /**
+         * 冒险者世界登记
+         */
         private Integer level;
     }
 
@@ -33,20 +42,64 @@ public class CharacterResponse {
     @Data
     public static class AvatarsDTO {
         private Integer id;
+        /**
+         * 立绘图
+         */
         private String image;
+        /**
+         * icon图
+         */
         private String icon;
+        /**
+         * 角色名称
+         */
         private String name;
+        /**
+         * 元素属性
+         */
         private String element;
+        /**
+         * 羁绊等级
+         */
         private Integer fetter;
+        /**
+         * 角色等级
+         */
         private Integer level;
+        /**
+         * 角色星级
+         */
         private Integer rarity;
+        /**
+         * 武器信息
+         */
         private WeaponDTO weapon;
+        /**
+         * 圣遗物信息
+         */
         private List<ReliquariesDTO> reliquaries;
+        /**
+         * 命之座详细信息
+         */
         private List<ConstellationsDTO> constellations;
+
+        /**
+         * 命之座数量
+         */
         @JsonProperty("actived_constellation_num")
         private Integer activedConstellationNum;
-        private List<?> costumes;
-        private Object external;
+        /**
+         * 服装信息
+         */
+        private List<Costumes> costumes;
+
+        @NoArgsConstructor
+        @Data
+        public static class Costumes {
+            private Integer id;
+            private String name;
+            private String icon;
+        }
 
         @NoArgsConstructor
         @Data
