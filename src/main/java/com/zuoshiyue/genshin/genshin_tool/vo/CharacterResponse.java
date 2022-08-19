@@ -105,16 +105,43 @@ public class CharacterResponse {
         @Data
         public static class WeaponDTO {
             private Integer id;
+            /**
+             * 武器名称
+             */
             private String name;
+            /**
+             * 图标
+             */
             private String icon;
+            /**
+             * 类型
+             */
             private Integer type;
+            /**
+             * 星级
+             */
             private Integer rarity;
+            /**
+             * 等级
+             */
             private Integer level;
+            /**
+             * 精练等级
+             */
             @JsonProperty("promote_level")
             private Integer promoteLevel;
+            /**
+             * 类型名称
+             */
             @JsonProperty("type_name")
             private String typeName;
+            /**
+             * 武器描述
+             */
             private String desc;
+            /**
+             * 词缀等级
+             */
             @JsonProperty("affix_level")
             private Integer affixLevel;
         }
@@ -123,12 +150,33 @@ public class CharacterResponse {
         @Data
         public static class ReliquariesDTO {
             private Integer id;
+            /**
+             * 圣遗物名称
+             */
             private String name;
+            /**
+             * 图片
+             */
             private String icon;
+            /**
+             * 位置
+             */
             private Integer pos;
+            /**
+             * 稀有度级别
+             */
             private Integer rarity;
+            /**
+             * 等级
+             */
             private Integer level;
+            /**
+             * 套装属性
+             */
             private SetDTO set;
+            /**
+             * 位置名称
+             */
             @JsonProperty("pos_name")
             private String posName;
 
@@ -136,14 +184,26 @@ public class CharacterResponse {
             @Data
             public static class SetDTO {
                 private Integer id;
+                /**
+                 * 套装效果名称
+                 */
                 private String name;
+                /**
+                 * 套装属性
+                 */
                 private List<AffixesDTO> affixes;
 
                 @NoArgsConstructor
                 @Data
                 public static class AffixesDTO {
+                    /**
+                     * 效果触发套装数
+                     */
                     @JsonProperty("activation_number")
                     private Integer activationNumber;
+                    /**
+                     * 效果说明
+                     */
                     private String effect;
                 }
             }
@@ -153,11 +213,26 @@ public class CharacterResponse {
         @Data
         public static class ConstellationsDTO {
             private Integer id;
+            /**
+             * 名称
+             */
             private String name;
+            /**
+             * 图标
+             */
             private String icon;
+            /**
+             * 效果说明你过
+             */
             private String effect;
+            /**
+             * 是否生效
+             */
             @JsonProperty("is_actived")
             private Boolean isActived;
+            /**
+             * 排序
+             */
             private Integer pos;
         }
     }
