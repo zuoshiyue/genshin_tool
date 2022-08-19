@@ -1,6 +1,7 @@
 package com.zuoshiyue.genshin.genshin_tool.controller;
 
 import com.zuoshiyue.genshin.genshin_tool.service.AccountCacheService;
+import com.zuoshiyue.genshin.genshin_tool.service.CharacterService;
 import com.zuoshiyue.genshin.genshin_tool.service.DailyNoteService;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import com.zuoshiyue.genshin.genshin_tool.vo.dailynote.DailyNoteInfo;
@@ -35,6 +36,9 @@ public class AccountController extends BaseController {
     @Resource
     private CacheManager cacheManager;
 
+    @Resource
+    private CharacterService characterService;
+
     @RequestMapping("/save")
     public String save(HttpServletRequest request, @Valid Account account, BindingResult bindingResult) {
         String errorMsg = checkParam(bindingResult);
@@ -47,7 +51,15 @@ public class AccountController extends BaseController {
         }
         request.setAttribute("user", account1);
 //        return "redirect:account/save";
-        return this.getDailyNote(request);
+        getCharacter(request);
+        String dailyNote = this.getDailyNote(request);
+        return dailyNote;
+    }
+
+    @RequestMapping("getcCharacter")
+    public String getCharacter(HttpServletRequest request){
+        characterService.getCharacterInfo();
+        return this.get(request);
     }
 
     @RequestMapping("/getDailyNote")

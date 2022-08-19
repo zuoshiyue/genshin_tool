@@ -4,7 +4,6 @@ import com.zuoshiyue.genshin.genshin_tool.util.JsonUtil;
 import com.zuoshiyue.genshin.genshin_tool.vo.Account;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachePut;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author zuoshiyue
@@ -26,15 +24,9 @@ public class AccountCacheService {
     @Resource
     private CacheManager cacheManager;
 
-    @Value("${account.role.id}")
-    private String roleId;
-
-    @Value("${account.cookie}")
-    private String cookie;
-
     @CachePut(cacheNames = "account", key = "'account'")
-    public Account cacheAccount(String roleId, String cookie){
-        if (StringUtils.isBlank(roleId) || StringUtils.isBlank(cookie)){
+    public Account cacheAccount(String roleId, String cookie) {
+        if (StringUtils.isBlank(roleId) || StringUtils.isBlank(cookie)) {
             return null;
         }
         return Account.builder()
@@ -43,22 +35,23 @@ public class AccountCacheService {
                 .build();
     }
 
-    public Account getAccount() {
-        Cache cache = cacheManager.getCache("account");
-        if (Objects.isNull(cache)){
-            return getResAccount();
-        }
-        Cache.ValueWrapper account = cache.get("account");
-        if (Objects.isNull(account)){
-            return getResAccount();
-        }
-        return JsonUtil.of(JsonUtil.toJson(account.get()), Account.class);
-    }
-
-    private Account getResAccount(){
-        if (StringUtils.isNotBlank(roleId) && StringUtils.isNotBlank(cookie)){
+    @CachePut(cacheNames = "account", key = "'account'")
+    public Account cacheAccount(Account account) {
+        if (Objects.isNull(account) || StringUtils.isBlank(account.getRoleId()) || StringUtils.isBlank(account.getCookie())) {
             return null;
         }
-        return Account.builder().roleId(roleId).cookie(cookie).build();
+        return account;
+    }
+
+    public Account getAccount() {
+        Cache cache = cacheManager.getCache("account");
+        if (Objects.isNull(cache)) {
+            return null;
+        }
+        Cache.ValueWrapper account = cache.get("account");
+        if (Objects.isNull(account)) {
+            return null;
+        }
+        return JsonUtil.of(JsonUtil.toJson(account.get()), Account.class);
     }
 }

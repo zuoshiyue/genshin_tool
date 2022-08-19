@@ -33,7 +33,7 @@ public class CharacterResponse {
          */
         private String region;
         /**
-         * 冒险者世界登记
+         * 冒险者世界等级
          */
         private Integer level;
     }

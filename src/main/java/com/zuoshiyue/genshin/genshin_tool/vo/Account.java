@@ -24,4 +24,13 @@ public class Account implements Serializable {
 
     @NotBlank
     private String cookie;
+
+    /**
+     * 冒险者名称
+     */
+    private String nickname;
+    /**
+     * 冒险者世界等级
+     */
+    private Integer level;
 }

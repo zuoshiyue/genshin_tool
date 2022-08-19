@@ -7,6 +7,8 @@
     <script th:replace="common/head::static"></script>
 </head>
 <body>
+名称 = <a th:text="${user.nickname}" data-no-instant=""></a><br>
+等级 = <a th:text="${user.level}" data-no-instant=""></a><br>
 roleId = <a th:text="${user.roleId}" data-no-instant=""></a><br>
 dailyNoteInfo <br>
 taskInfo = <a th:text="${dailyNoteInfo.taskInfo}" data-no-instant=""></a><br>

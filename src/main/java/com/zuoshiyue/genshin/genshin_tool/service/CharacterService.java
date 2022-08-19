@@ -31,7 +31,16 @@ public class CharacterService {
             return;
         }
         CharacterResponse character = characterRepository.getCharacter(account.getRoleId(), account.getCookie());
+        if (Objects.isNull(character)){
+            log.error("获取账号角色信息为空");
+            return ;
+        }
         CharacterResponse.RoleDTO role = character.getRole();
+        if (Objects.nonNull(role)) {
+            account.setNickname(role.getNickname());
+            account.setLevel(role.getLevel());
+            accountCacheService.cacheAccount(account);
+        }
         List<CharacterResponse.AvatarsDTO> avatars = character.getAvatars();
 
 
